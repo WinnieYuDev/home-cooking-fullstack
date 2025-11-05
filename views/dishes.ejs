@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>All Dishes</title>
+</head>
+<body>
+  <h1>All Dishes</h1>
+  <% if (dishes && dishes.length > 0) { %>
+    <ul>
+      <% dishes.forEach(dish => { %>
+        <li>
+          <h3><%= dish.name %></h3>
+          <p><%= dish.description %></p>
+          <% if (dish.imageUrl) { %>
+            <img src="<%= dish.imageUrl %>" width="200"> <!--change imgURL to blob-->
+            <!--add in thumbs up and thumbs down-->
+          <% } %>
+        </li>
+      <% }) %>
+    </ul>
+  <% } else { %>
+    <p>No dishes yet.</p>
+  <% } %>
+</body>
+</html>
+
+
+<!-- //Citations:
+//Modified code from youtube tutorial: https://www.youtube.com/watch?v=z5UgtXOxEEk
+//Reference code from https://www.mongodb.com/resources/languages/express-mongodb-rest-api-tutorial#setting-up-the-project
+//Use of dotenv package to hide sensitive info: https://www.npmjs.com/package/dotenv
+//Use of Learning Mode on AI tools to help with code structure,syntax and debugging  
+-->

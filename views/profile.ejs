@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Home Cooking Review</title>
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="container">
+
+  <div class="page-header text-center">
+    <h1><span class="fa fa-utensils"></span> Home Cooking Reviews</h1>
+    <p>Welcome, <strong><%= user.local.email %></strong></p>
+    <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+  </div>
+
+  <div class="row">
+
+    <!-- User Info -->
+    <div class="col-sm-4">
+      <div class="well text-center">
+        <h3><i class="fa fa-user"></i> Your Profile</h3>
+        <p><strong>User ID:</strong> <%= user._id %></p>
+        <p><strong>Email:</strong> <%= user.local.email %></p>
+      </div>
+
+      <!-- Add Dish Form -->
+      <div class="well">
+        <h3><i class="fa fa-plus-circle"></i> Add a Dish</h3>
+        <form action="/dishes" method="POST" enctype="multipart/form-data">
+        <input type="text" name="name" placeholder="Dish Name" required>
+        <input type="text" name="description" placeholder="Description">
+        <input type="file" name="image" accept="image/*" required>
+        <button type="submit">Add Dish</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Dishes Section -->
+    <ul class="list-group">
+      <% if (dishes && dishes.length > 0) { %>
+        <% dishes.forEach(dish => { %>
+        <li class="list-group-item message" data-id="<%= dish._id %>">
+          <span class="dish-name"><%= dish.name %></span>
+          <span class="dish-msg"><%= dish.description %></span>
+          <img src="<%= dish.imageUrl %>" alt="<%= dish.name %>">
+
+          <div class="actions">
+            <span class="thumbUpCount"><%= dish.thumbsUp || 0 %></span>
+            <i class="fa fa-thumbs-up"></i>
+
+            <span class="thumbDownCount"><%= dish.thumbsDown || 0 %></span>
+            <i class="fa fa-thumbs-down"></i>
+
+            <i class="fa fa-trash"></i>
+          </div>
+        </li>
+        <% }); %>
+      <% } else { %>
+        <li class="list-group-item">No dishes added yet.</li>
+      <% } %>
+    </ul>
+  </div>
+</div>
+
+<script src="/js/main.js"></script>
+</body>
+</html>
+
+<!--
+//Citations:
+//Modified code from youtube tutorial: https://www.youtube.com/watch?v=z5UgtXOxEEk
+//Reference code from https://www.mongodb.com/resources/languages/express-mongodb-rest-api-tutorial#setting-up-the-project
+//Use of dotenv package to hide sensitive info: https://www.npmjs.com/package/dotenv
+//Use of Learning Mode on AI tools to help with code structure,syntax and debugging 
+-->
