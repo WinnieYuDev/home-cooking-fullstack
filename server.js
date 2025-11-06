@@ -4,7 +4,7 @@
 // get all the tools we need
 var express  = require('express');
 var app      = express();
-var port     = process.env.PORT || 8080;
+var port = process.env.PORT || 5000;
 const MongoClient = require('mongodb').MongoClient
 var mongoose = require('mongoose');
 var passport = require('passport');
@@ -17,45 +17,60 @@ var session      = require('express-session');
 
 var configDB = require('./config/database.js');
 
-var db
-
 app.use(express.static('public')); // make sure this is in server.js
 
-// configuration ===============================================================
-mongoose.connect(configDB.url, (err, database) => {
-  if (err) return console.log(err)
-  db = database
-  require('./app/routes.js')(app, passport, db);
-}); // connect to our database
+// connect to our database =====================================================
+async function startServer() {
+  try {
+    await mongoose.connect(configDB.url, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
 
-require('./config/passport')(passport); // pass passport for configuration
+    console.log('✅ MongoDB connected successfully');
 
-// set up our express application
-app.use(morgan('dev')); // log every request to the console
-app.use(cookieParser()); // read cookies (needed for auth)
-app.use(bodyParser.json()); // get information from html forms
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static('public'))
+    // assign mongoose connection to db after connection succeeds
+    db = mongoose.connection;
 
+    // configuration ===============================================================
+    require('./config/passport')(passport); // pass passport for configuration
 
-app.set('view engine', 'ejs'); // set up ejs for templating
+    // set up our express application
+    app.use(morgan('dev')); // log every request to the console
+    app.use(cookieParser()); // read cookies (needed for auth)
+    app.use(bodyParser.json()); // get information from html forms
+    app.use(bodyParser.urlencoded({ extended: true }));
+    app.use(express.static('public'))
 
-// required for passport
-app.use(session({
-    secret: 'rcbootcamp2021b', // session secret
-    resave: true,
-    saveUninitialized: true
-}));
-app.use(passport.initialize());
-app.use(passport.session()); // persistent login sessions
-app.use(flash()); // use connect-flash for flash messages stored in session
+    app.set('view engine', 'ejs'); // set up ejs for templating
 
+    // required for passport
+    app.use(session({
+        secret: 'rcbootcamp2021b', // session secret
+        resave: true,
+        saveUninitialized: true
+    }));
+    app.use(passport.initialize());
+    app.use(passport.session()); // persistent login sessions
+    app.use(flash()); // use connect-flash for flash messages stored in session
 
-// launch ======================================================================
-app.listen(port);
-console.log('The magic happens on port ' + port);
+    // load routes ===============================================================
+    require('./app/routes.js')(app, passport, db);
+
+    // launch ======================================================================
+    app.listen(port);
+    console.log('The magic happens on port ' + port);
+
+  } catch (err) {
+    console.error('MongoDB connection error:', err);
+    process.exit(1); // stop app if DB connection fails
+  }
+}
+
+startServer();
 
 //notes: to run server, use command "node server.js" in terminal
+
 // Dependency	What it’s for	Install command
 // express	The main web framework — handles routes, requests, and responses	
 // npm install express

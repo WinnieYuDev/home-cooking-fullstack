@@ -43,16 +43,19 @@ module.exports = function(app, passport, db) {
   });
 
 // Profile page (protected) =========================
-  app.get('/profile', isLoggedIn, function(req, res) {
-    db.collection('dishes').find().toArray((err, dishes) => { // fetch all dishes from database
-      if(err) return res.send(err);
-      res.render('profile.ejs', { // render profile.ejs with the user and dishes data
-        user: req.user,
-        dishes: dishes
-      });
-    });
+  app.get('/profile', isLoggedIn, async function(req, res) {
+      try {
+          // Make sure you are using Mongoose model for dishes
+          const dishes = await dish.find().lean(); // dish = your Mongoose model
+          res.render('profile.ejs', { 
+              user: req.user, 
+              dishes: dishes 
+          });
+      } catch (err) {
+          console.error(err);
+          res.send('Error loading profile');
+      }
   });
-
 // Logout route =========================
   app.get('/logout', function(req, res) {
       req.logout(() => {
@@ -130,10 +133,19 @@ module.exports = function(app, passport, db) {
 
   // Process login form =========================
   app.post('/login', passport.authenticate('local-login', {
-      successRedirect : '/profile', 
-      failureRedirect : '/login',
-      failureFlash : true
+        successRedirect : '/profile', 
+        failureRedirect : '/login',
+        failureFlash : true
   }));
+
+  app.post('/login', passport.authenticate('local-login', {
+    successRedirect : '/profile', 
+    failureRedirect : '/login',
+    failureFlash : true
+}), (req, res) => {
+    console.log('Login middleware finished'); 
+});
+
 
   // Show signup form =========================
   app.get('/signup', (req, res) => {
